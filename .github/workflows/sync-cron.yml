@@ -1,0 +1,27 @@
+# Free cron: trigger Hyperliquid sync every 2 hours so all pairs get 1m (and other) candles.
+# One full cycle = (total pairs / PAIRS_PER_RUN) runs. With ~250 pairs and 24/run ≈ 11 runs.
+# 12 runs per day (every 2h) = full coverage daily.
+#
+# Required repo secrets (Settings → Secrets and variables → Actions):
+#   SYNC_URL    - e.g. https://your-app.vercel.app/api/sync
+#   CRON_SECRET - same value as CRON_SECRET in Vercel (optional; leave empty if you don't use it)
+
+name: Sync Hyperliquid data
+
+on:
+  schedule:
+    - cron: '0 */2 * * *'
+  workflow_dispatch:
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger sync
+        run: |
+          if [ -n "${{ secrets.CRON_SECRET }}" ]; then
+            curl -sf -X POST "${{ secrets.SYNC_URL }}" -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}"
+          else
+            curl -sf -X POST "${{ secrets.SYNC_URL }}"
+          fi
+          echo "Sync request sent."

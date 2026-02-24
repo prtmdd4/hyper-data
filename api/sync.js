@@ -15,8 +15,9 @@ const {
   getAllPairs,
 } = require('../lib/db');
 
-// How many pairs to sync per cron run (candles only; meta is synced when list is missing)
-const PAIRS_PER_RUN = 12;
+// How many pairs to sync per run. ~1.2s per HL call; 24 pairs × 9 intervals = 216 calls ≈ 4.3 min (under 5 min limit).
+// With ~250 pairs, 250/24 ≈ 11 runs = one full cycle. Run every 2h → 12 runs/day = every pair updated daily.
+const PAIRS_PER_RUN = 24;
 // Intervals to store (HL supports: 1m, 3m, 5m, 15m, 30m, 1h, 2h, 4h, 8h, 12h, 1d, 3d, 1w, 1M)
 const INTERVALS = ['1m', '5m', '15m', '30m', '1h', '2h', '4h', '1d', '3d'];
 // For each interval, fetch this many ms of history (HL returns max 5000 per request)
